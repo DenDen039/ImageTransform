@@ -1,5 +1,3 @@
-from turtle import window_width
-from unittest import result
 import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt
