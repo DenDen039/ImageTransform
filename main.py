@@ -8,41 +8,15 @@ from PIL import Image, ImageTk
 import os
 
 
-def CountE(img):
-    E = np.array([0, 0, 0])
-    n = img.shape[0]*img.shape[1]
-    for i in range(img.shape[0]):
-        for j in range(img.shape[1]):
-            for k in range(img.shape[2]):
-                E[k] += img[i][j][k]
-    for i in range(3):
-        E[i] = E[i]/n
-    return E
-
-
-def CountD(img, E):
-    D = np.array([0, 0, 0])
-    n = img.shape[0]*img.shape[1]
-    for i in range(img.shape[0]):
-        for j in range(img.shape[1]):
-            for k in range(img.shape[2]):
-                D[k] += (img[i][j][k]-E[k])**2
-    for i in range(3):
-        D[i] = (D[i]/n)**(1/2)
-    return D
-
-
-def TransformImagepalette(img_s, img_t):
-    Es = CountE(img_s)
-    Ds = CountD(img_s, Es)
-    Et = CountE(img_t)
-    Dt = CountD(img_t, Et)
-    for i in range(img_t.shape[0]):
-        for j in range(img_t.shape[1]):
-            for k in range(img_t.shape[2]):
-                img_t[i][j][k] = (Es[k]+(img_t[i][j][k]-Et[k])
-                                  * (Ds[k]/Dt[k])) % 255
-    return img_t
+def TransformImagepalette(imgS, imgT):
+    Et = np.mean(imgT, axis=(0, 1))
+    Dt = np.std(imgT, axis=(0, 1))
+    Es = np.mean(imgS, axis=(0, 1))
+    Ds = np.std(imgS, axis=(0, 1))
+    result = (Es + (imgT - Et) * (Ds / Dt)).astype("uint8")
+    result[result>255] = 255
+    result[result<0] = 0
+    return result
 
 def PlotColorChannels(image):
     #Check if not empty
